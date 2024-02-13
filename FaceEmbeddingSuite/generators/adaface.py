@@ -4,21 +4,9 @@ import gdown
 import os
 
 class AdaFace:
-    def __init__(self, backbone_name="ir_101_webface_12m", device="cpu"):
+    def __init__(self, backbone_name, device):
+        print("backbone_name", backbone_name)
         self._device = device
-        if not(backbone_name in ["ir_101_webface_12m", "ir_101_webface_4m", "ir_101_ms1_mv3", "ir_101_ms1_mv2", "ir_50_ms1_mv2", "ir_50_webface_4m", "ir_50_casia_webface", "ir_18_webface_4m", "ir_18_vggface2", "adaface_ir18_casia.ckpt"]):
-            raise RuntimeError("""Please provide a valid backbone name for the adaface model. The options are 
-- 'ir_101_webface_12m' 
-- 'ir_101_webface_4m'
-- 'ir_101_ms1_mv3'
-- 'ir_101_ms1_mv2'
-- 'ir_50_ms1_mv2'
-- 'ir_50_webface_4m'
-- 'ir_50_casia_webface'
-- 'ir_18_webface_4m'
-- 'ir_18_vggface2'
-- 'adaface_ir18_casia.ckpt'""")
-
         self._backbone_name = backbone_name
         if self._backbone_name == "ir_101_webface_12m":
             ckpt_name = "adaface_ir101_webface12m.ckpt"
@@ -57,24 +45,28 @@ class AdaFace:
             ckpt_url="https://drive.google.com/uc?id=1k7onoJusC0xjqfjB-hNNaxz9u6eEzFdv"
             arch_type = "ir_18"
         elif self._backbone_name == "ir_18_casia_webface":
-            ckpt_name = "adaface_ir18_casia.ckpt"
+            ckpt_name = "adaface_ir18_casia"
             ckpt_url="https://drive.google.com/uc?id=1BURBDplf2bXpmwOL1WVzqtaVmQl9NpPe"
             arch_type = "ir_18"
-        
-
-
-        print(arch_type)
+        else:
+            raise RuntimeError("ppppppppp")
         self._model = build_model(arch_type=arch_type)
         os.makedirs(os.path.join(os.getcwd(), "weights"), exist_ok=True)
-        self._ckpt_path = os.path.join(os.getcwd(), "weights", ckpt_name)
-        gdown.download(ckpt_url, self._ckpt_path, quiet=False)
 
-        statedict = torch.load(self._ckpt_path, map_location=torch.device(self._device))['state_dict']
         
-        model_statedict = {key[6:]:val for key, val in statedict.items() if key.startswith('model.')}
-        self._model.load_state_dict(model_statedict)
-        self._model.to(self._device)
-        self._model.eval()
+        self._ckpt_path = os.path.join(os.getcwd(), "weights", ckpt_name)
+
+        if not(os.path.isfile(self._ckpt_path)):
+            gdown.download(ckpt_url, self._ckpt_path, quiet=False)
+
+        try:
+            statedict = torch.load(self._ckpt_path, map_location=torch.device(self._device))['state_dict']
+            model_statedict = {key[6:]:val for key, val in statedict.items() if key.startswith('model.')}
+            self._model.load_state_dict(model_statedict)
+            self._model.to(self._device)
+            self._model.eval()
+        except Exception as e:
+            raise RuntimeError(f"An error occured: {e}")
         
         print("The model is built")
         

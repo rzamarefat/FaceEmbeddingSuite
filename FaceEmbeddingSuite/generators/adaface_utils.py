@@ -23,7 +23,7 @@ def build_model(arch_type):
     elif arch_type == 'ir_18':
         return IR_18(input_size=(112,112))
     else:
-        raise ValueError('not a correct model name', backbone_name)
+        raise ValueError('not a correct arch type', arch_type)
 
 def initialize_weights(modules):
     """ Weight initilize, conv2d and linear is initialized with kaiming_normal
