@@ -11,16 +11,16 @@ from torch.nn import Module
 from torch.nn import PReLU
 import os
 
-def build_model(backbone_name='ir_50'):
-    if backbone_name == 'ir_101':
+def build_model(arch_type):
+    if arch_type == 'ir_101':
         return IR_101(input_size=(112,112))
-    elif backbone_name == 'ir_50':
+    elif arch_type == 'ir_50':
         return IR_50(input_size=(112,112))
-    elif backbone_name == 'ir_se_50':
+    elif arch_type == 'ir_se_50':
         return IR_SE_50(input_size=(112,112))
-    elif backbone_name == 'ir_34':
+    elif arch_type == 'ir_34':
         return IR_34(input_size=(112,112))
-    elif backbone_name == 'ir_18':
+    elif arch_type == 'ir_18':
         return IR_18(input_size=(112,112))
     else:
         raise ValueError('not a correct model name', backbone_name)
