@@ -1,1 +1,1 @@
-from .core import (GeneratorManager)
+from .core import (GeneratorManager, DetectorManager)

@@ -1,4 +1,6 @@
+from typing import Any
 from .generators.adaface import AdaFace
+from .detectors.YOLOv8 import YOLOLandmark
 
 
 class GeneratorManager:
@@ -23,4 +25,22 @@ class GeneratorManager:
     def __call__(self, data):
         self._generator.generate(data)
 
+
+
+
+class DetectorManager:
+    def __init__(self,
+                 detector_name="yolov8",
+                 device="cuda"
+                 ):
+        
+        self._detector_name = detector_name
+        self._device = device
+
+
+        if self._detector_name == "yolov8":
+            self._detector = YOLOLandmark(device=self._device)
     
+
+    def __call__(self, data):
+        pass

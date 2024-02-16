@@ -49,7 +49,7 @@ class AdaFace:
             ckpt_url="https://drive.google.com/uc?id=1BURBDplf2bXpmwOL1WVzqtaVmQl9NpPe"
             arch_type = "ir_18"
         else:
-            raise RuntimeError("ppppppppp")
+            raise RuntimeError("")
         self._model = build_model(arch_type=arch_type)
         os.makedirs(os.path.join(os.getcwd(), "weights"), exist_ok=True)
 
