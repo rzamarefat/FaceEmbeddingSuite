@@ -50,6 +50,7 @@ class AdaFace:
             arch_type = "ir_18"
         else:
             raise RuntimeError("")
+        
         self._model = build_model(arch_type=arch_type)
         os.makedirs(os.path.join(os.getcwd(), "weights"), exist_ok=True)
 
@@ -69,9 +70,32 @@ class AdaFace:
             raise RuntimeError(f"An error occured: {e}")
         
         print("The model is built")
+
+    def _to_input(self, images):
+        final_out = []
+        for img in images:
+            brg_img = ((img[:,:,::-1] / 255.) - 0.5) / 0.5
+            final_out.append(torch.tensor([brg_img.transpose(2,0,1)]).float().squeeze())
+            
+        final_out = torch.stack([tens for tens in final_out])
+    
+        return final_out
         
 
-    def generate(self, data):
-        print("Generated.")
+    def generate(self, detection_data):
+        face = self._to_input(detection_data["faces"]).to(self._device)
+        emb_data, _ = self._model(face)
+
+        embs = []
+        for index in range(len(emb_data)):
+            emb = emb_data[index]
+            embs.append(emb)
+
+        detection_data.__setitem__("embs", embs)
+        
+        
+        return detection_data
+
+        
 
 

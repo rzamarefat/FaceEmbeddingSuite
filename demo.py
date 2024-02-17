@@ -7,8 +7,11 @@ def main():
     generator = fes.GeneratorManager(generator_name="ir_18_casia_webface")
 
     detection_data = detector(data)
-    print(detection_data)
-    generator(data, )
+    
+    data = generator(detection_data)
+
+    print(data)
+
 
 if __name__ == "__main__":
     main()

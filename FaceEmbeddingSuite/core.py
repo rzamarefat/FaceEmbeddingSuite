@@ -23,7 +23,9 @@ class GeneratorManager:
             raise RuntimeError("Please provide a valid name for generator. The valid options are ['adaface', 'magface', 'poseface', 'sface', 'cosface', 'arcface']")
 
     def __call__(self, data):
-        self._generator.generate(data)
+        res = self._generator.generate(data)
+
+        return res
 
 
 
