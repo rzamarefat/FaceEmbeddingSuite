@@ -42,5 +42,10 @@ class DetectorManager:
             self._detector = YOLOLandmark(device=self._device)
     
 
-    def __call__(self, data):
-        pass
+    def __call__(self, data, find_largest_box=False):
+        res = self._detector.detect(data, find_largest_box=find_largest_box)
+
+        return res
+            
+
+        

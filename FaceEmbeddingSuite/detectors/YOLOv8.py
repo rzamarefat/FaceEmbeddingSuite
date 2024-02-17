@@ -23,8 +23,6 @@ class YOLOLandmark:
         
         converted_landmarks = []
         for key in landmark:
-            print(key.xy.tolist())
-            print(len(key.xy.tolist()))
             if len(key.xy.tolist()[0]) == 0:
                 continue
 
@@ -44,21 +42,20 @@ class YOLOLandmark:
         try:
             face = warp_and_crop_face(image, converted_landmarks[0], reference_pts=reference_pts, align_type='smilarity')
         except:
-            # continue
-
-            # cv2.imwrite(f"{str(uuid1())[0:8]}.jpg", face)
-            # print("face.shape", face.shape)
-            # faces.append(face)
             print("Error happend in YOLOLandmark")
             return None
 
         return face
 
-    def _find_largest_box(self, image, bounding_boxes, landmarks):
+    def _process_bboxes_n_landmakes(self, image, bounding_boxes, landmarks, find_largest_box=False):
         largest_area = 0
         largest_box = None
-        for index, (box, landmark) in enumerate(zip(bounding_boxes, landmarks)):
-                
+        result = {
+            "xyxy_boxes": [],
+            "faces": [],
+            "landmarks":[]
+        }
+        for box, landmark in zip(bounding_boxes, landmarks):
                 landmark_1 = (int(landmark.xy.tolist()[0][0][0]), int(landmark.xy.tolist()[0][0][1]))
                 landmark_2 = (int(landmark.xy.tolist()[0][1][0]), int(landmark.xy.tolist()[0][1][1]))
                 landmark_3 = (int(landmark.xy.tolist()[0][2][0]), int(landmark.xy.tolist()[0][2][1]))
@@ -70,26 +67,26 @@ class YOLOLandmark:
                 bottom_right_x = int(box.xyxy.tolist()[0][2])
                 bottom_right_y = int(box.xyxy.tolist()[0][3])
 
-                
-                area = (bottom_right_x - top_left_x) * (bottom_right_y - top_left_y)
+                face = self._get_faces(image, box, landmark)
 
-                # Update if the current box has a larger area
-                if area > largest_area:
-                    largest_area = area
-                    largest_box = box
-                
-                    face = self._get_faces(image, box, landmark)
-                    result = {
-                        "bounding_box": [top_left_x, top_left_y, bottom_right_x, bottom_right_y],
-                        "landmarks":[landmark_1, landmark_2, landmark_3, landmark_4, landmark_5],
-                        "hasError": False,
-                        "face": face
-                        
-                    }
+
+                if find_largest_box:
+                    area = (bottom_right_x - top_left_x) * (bottom_right_y - top_left_y)
+
+                    if area > largest_area:
+                        largest_area = area
+                    
+                        result.__setitem__("biggest_xyxy", [top_left_x, top_left_y, bottom_right_x, bottom_right_y])
+                        result.__setitem__("biggest_landmarks", [landmark_1, landmark_2, landmark_3, landmark_4, landmark_5])
+                        result.__setitem__("biggest_face", face)
+
+                result["xyxy_boxes"].append([top_left_x, top_left_y, bottom_right_x, bottom_right_y])
+                result["landmarks"].append([top_left_x, top_left_y, bottom_right_x, bottom_right_y])
+                result["faces"].append(face)
 
         return result
 
-    def detect(self, image):
+    def detect(self, image, find_largest_box=False):
         results = self._model.predict(image, device=self._device)
         boxes = results[0].boxes
         
@@ -102,11 +99,9 @@ class YOLOLandmark:
                 "bbox": [],
                 "landmarks": [],
                 "faces": [],
-                "hasError": True
             }
         else:
-            result = self._find_largest_box(image, boxes, landmarks)
-            
+            result = self._process_bboxes_n_landmakes(image, boxes, landmarks, find_largest_box)
 
             return result
 
