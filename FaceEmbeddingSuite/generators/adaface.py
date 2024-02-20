@@ -59,7 +59,6 @@ class AdaFace:
 
         if not(os.path.isfile(self._ckpt_path)):
             gdown.download(ckpt_url, self._ckpt_path, quiet=False)
-
         try:
             statedict = torch.load(self._ckpt_path, map_location=torch.device(self._device))['state_dict']
             model_statedict = {key[6:]:val for key, val in statedict.items() if key.startswith('model.')}

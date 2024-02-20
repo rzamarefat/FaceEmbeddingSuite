@@ -201,31 +201,6 @@ def iresnet50(pretrained=False, progress=True, **kwargs):
 def iresnet100(pretrained=False, progress=True, **kwargs):
     return _iresnet('iresnet100', IBasicBlock, [3, 13, 30, 3], pretrained,
                     progress, **kwargs)
-def _test():
-    import torch
-
-    pretrained = False
-
-    models = [
-        iresnet50
-    ]
-
-    for model in models:
-
-        net = model()
-        print(net)
-        # net.train()
-        weight_count = _calc_width(net)
-        flops=count_model_flops(net)
-        print("m={}, {}".format(model.__name__, weight_count))
-        print("m={}, {}".format(model.__name__, flops))
-        net.eval()
-
-        x = torch.randn(1, 3, 112, 112)
-
-        y = net(x)
-        y.sum().backward()
-        assert (tuple(y.size()) == (1, 512))
 
 
 if __name__ == "__main__":
