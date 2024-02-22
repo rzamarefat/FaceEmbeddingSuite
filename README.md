@@ -3,14 +3,14 @@
 
 ### Algorithms
 #### Face Detection and Alignment Algorithms:
-[-] YOLOv8
-[] FaceBoxes
+- [x] YOLOv8
+- [] FaceBoxes
 #### Face Embedding Algorithms:
-[-] AdaFace
-[-] SFace
-[] MagFace
-[] CosFace
-[] ArcFace
+- [x] AdaFace
+- [x] SFace
+- [] MagFace
+- [] CosFace
+- [] ArcFace
 ### Usage: Generators
 ```python
 import FaceEmbeddingSuite as fes
