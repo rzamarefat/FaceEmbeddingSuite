@@ -10,10 +10,10 @@ import cv2
 def main():
     data = cv2.imread("path/to/person.jpg")
     detector = fes.DetectorManager(detector_name="yolov8")
+    detection_data = detector(data)
 
     # AdaFace    
     generator = fes.GeneratorManager(generator_name="ir_18_casia_webface")
-    detection_data = detector(data)
     data = generator(detection_data)
 
     # SFace
