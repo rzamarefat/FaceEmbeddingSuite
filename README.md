@@ -1,4 +1,6 @@
 # Face Embedding Suite
+## An easy to use tool for generating, searching, and using face embedding spaces from different SOTA algorithms
+
 
 ### Usage: Generators
 ```python
