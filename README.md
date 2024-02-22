@@ -1,7 +1,16 @@
 # Face Embedding Suite
 ## An easy to use tool for generating, searching, and using face embedding spaces from different SOTA algorithms
 
-
+### Algorithms
+#### Face Detection and Alignment Algorithms:
+[-] YOLOv8
+[] FaceBoxes
+#### Face Embedding Algorithms:
+[-] AdaFace
+[-] SFace
+[] MagFace
+[] CosFace
+[] ArcFace
 ### Usage: Generators
 ```python
 import FaceEmbeddingSuite as fes
