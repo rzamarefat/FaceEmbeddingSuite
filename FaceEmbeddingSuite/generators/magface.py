@@ -6,7 +6,7 @@ import torch
 from torchvision import transforms
 import numpy as np
 from collections import OrderedDict
-import iresnet
+from .magface_utils import *
 
 class MagFace:
     def __init__(self, backbone_name, device):
@@ -17,7 +17,7 @@ class MagFace:
         ])
         self._device = device
 
-        features_model = iresnet.iresnet100(
+        features_model = iresnet100(
             pretrained=False,
             num_classes=512,
         )

@@ -1,6 +1,7 @@
 from typing import Any
 from .generators.adaface import AdaFace
 from .generators.sface import SFace
+from .generators.magface import MagFace
 from .detectors.YOLOv8 import YOLOLandmark
 
 
@@ -14,8 +15,9 @@ class GeneratorManager:
 
         self._adaface_model_name_list = ["ir_101_webface_12m", "ir_101_webface_4m", "ir_101_ms1_mv3", "ir_101_ms1_mv2", "ir_50_ms1_mv2", "ir_50_webface_4m", "ir_50_casia_webface", "ir_18_webface_4m", "ir_18_vggface2", "ir_18_casia_webface"]
         self._sface_model_name_list = ["sface__casia_webface"]
+        self._magface_model_name_list = []
 
-        self._all_allowed_model_name_list = self._adaface_model_name_list + self._sface_model_name_list
+        self._all_allowed_model_name_list = self._adaface_model_name_list + self._sface_model_name_list + self._magface_model_name_list
 
 
         self._generator_name = generator_name
@@ -27,6 +29,8 @@ class GeneratorManager:
             self._generator = AdaFace(self._generator_name, self._device)
         elif self._generator_name in self._sface_model_name_list:
             self._generator = SFace(self._generator_name, self._device)
+        elif self._generator_name in self._magface_model_name_list:
+            self._generator = MagFace(self._generator_name, self._device)
         else:
             raise RuntimeError("Please provide a valid name for generator. The valid options are ['adaface', 'magface', 'poseface', 'sface', 'cosface', 'arcface']")
 
