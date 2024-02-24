@@ -8,7 +8,7 @@
 #### Face Embedding Algorithms:
 - [x] AdaFace
 - [x] SFace
-- [ ] MagFace
+- [x] MagFace
 - [ ] CosFace
 - [ ] ArcFace
 ### Usage: Generators
