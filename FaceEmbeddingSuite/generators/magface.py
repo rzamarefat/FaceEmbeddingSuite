@@ -7,38 +7,69 @@ from torchvision import transforms
 import numpy as np
 from collections import OrderedDict
 from .magface_utils import *
+import gdown
+
+
 
 class MagFace:
     def __init__(self, backbone_name, device):
+
+        self._device = device
+        self._backbone_name = backbone_name
+
+        if self._backbone_name == "magface__iresnet100":
+            ckpt_name = "magface_epoch_00025.pth"
+            ckpt_url="https://drive.google.com/uc?id=1Bd87admxOZvbIOAyTkGEntsEz3fyMt7H"
+            arch_type = "iresnet100"
+            features_model = iresnet100(
+            pretrained=False,
+            num_classes=512,
+            )
+        elif self._backbone_name == "magface__iresnet50":
+            ckpt_name = "magface_iresnet50_MS1MV2_ddp_fp32.pth"
+            ckpt_url="https://drive.google.com/uc?id=1QPNOviu_A8YDk9Rxe8hgMIXvDKzh6JMG"
+            arch_type = "iresnet100"
+            features_model = iresnet50(
+            pretrained=False,
+            num_classes=512,
+            )
+        elif self._backbone_name == "magface__iresnet18":
+            ckpt_name = "magface_iresnet18_casia_dp.pth"
+            ckpt_url="https://drive.google.com/uc?id=18pSIQOHRBQ-srrYfej20S5M8X8b_7zb9"
+            arch_type = "iresnet100"
+            features_model = iresnet18(
+            pretrained=False,
+            num_classes=512,
+            )
+        else:
+            raise RuntimeError("")
+        
+
+        self._ckpt_path = os.path.join(os.getcwd(), "weights", ckpt_name)
+
+        if not(os.path.isfile(self._ckpt_path)):
+            gdown.download(ckpt_url, self._ckpt_path, quiet=False)
+
+
+
+        self.features_model = self._load_dict_inf(features_model).to(self._device)
+
+
         self.transforms = transforms.Compose([
                     transforms.Normalize(
                         mean=[0., 0., 0.],
                         std=[1., 1., 1.]),
         ])
-        self._device = device
 
-        features_model = iresnet100(
-            pretrained=False,
-            num_classes=512,
-        )
-        self.features_model = self._load_dict_inf(config, features_model).to(self.device)
+    def _load_dict_inf(self, model):    
+        checkpoint = torch.load(self._ckpt_path, map_location=self._device)
+        _state_dict = self._clean_dict_inf(model, checkpoint['state_dict'])
+        model_dict = model.state_dict()
+        model_dict.update(_state_dict)
+        model.load_state_dict(model_dict)
+        del checkpoint
+        del _state_dict
 
-    def _load_dict_inf(self, config, model):
-        if os.path.isfile(config["magface_pretrained_path"]):
-            
-            if config["cpu_mode"]:
-                checkpoint = torch.load(config["magface_pretrained_path"], map_location=torch.device("cpu"))
-            else:
-                checkpoint = torch.load(config["magface_pretrained_path"])
-            _state_dict = self._clean_dict_inf(model, checkpoint['state_dict'])
-            model_dict = model.state_dict()
-            model_dict.update(_state_dict)
-            model.load_state_dict(model_dict)
-            del checkpoint
-            del _state_dict
-            print("=> Magface pretrained model is loaded successfully")
-        else:
-            sys.exit(f"=> No checkpoint found at: {config['magface_pretrained_path']}")
         return model
 
 
@@ -63,30 +94,27 @@ class MagFace:
         return _state_dict
 
 
-    def _preprocess_data(self, img):
-        img = np.array(img, dtype=np.float32)
-        empty_tensor = np.zeros((img.shape[0], img.shape[1], img.shape[2]), dtype=np.float32)
-        img = np.array([img, empty_tensor])
-        img_tensor = self.transforms(torch.from_numpy(img).permute(0, 3, 1, 2))
+    def _preprocess_data(self, faces):
 
-        img_tensor = img_tensor.to(self.device)
+        faces_data = []
+        for face in faces:
+            face = np.array(face, dtype=np.float32)
+            empty_tensor = np.zeros((face.shape[0], face.shape[1], face.shape[2]), dtype=np.float32)
+            face = np.array([face, empty_tensor])
+            face_tensor = self.transforms(torch.from_numpy(face).permute(0, 3, 1, 2))
+            # print("face_tensor.shape", face_tensor.shape)
+
+
+        face_tensor = face_tensor.to(self._device)
         
-        return img_tensor
+        return face_tensor
         
 
     def generate(self, detection_data):
         
-
-
-        if isinstance(type(img), np.ndarray):
-            raise Exception("The type of data given to 'generate_embeddings' method is not a numpy array. \
-You have probably forgotten to read the images as np.array")
-        
-        if not(img.shape[1] == 112 or img.shape[2] == 112):
-            raise Exception("The size of images provided for this 'generate_embeddings' method must be 112*112")
-
-        img = self._preprocess_data(img)
-        generated_embs = self.features_model(img)
+        faces_data = self._preprocess_data(detection_data["faces"])
+        print("faces_data.shape======", faces_data.shape)
+        generated_embs = self.features_model(faces_data)
         generated_embs = generated_embs[0].detach().cpu()
 
         return generated_embs 

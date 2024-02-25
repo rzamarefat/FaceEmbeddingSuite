@@ -18,7 +18,7 @@ def main():
     # print(data)
 
     # MagFace
-    generator = fes.GeneratorManager(generator_name="sface__casia_webface")
+    generator = fes.GeneratorManager(generator_name="magface__iresnet100")
     data = generator(detection_data)
     # print(data)
 

@@ -15,7 +15,7 @@ class GeneratorManager:
 
         self._adaface_model_name_list = ["ir_101_webface_12m", "ir_101_webface_4m", "ir_101_ms1_mv3", "ir_101_ms1_mv2", "ir_50_ms1_mv2", "ir_50_webface_4m", "ir_50_casia_webface", "ir_18_webface_4m", "ir_18_vggface2", "ir_18_casia_webface"]
         self._sface_model_name_list = ["sface__casia_webface"]
-        self._magface_model_name_list = []
+        self._magface_model_name_list = ["magface__iresnet100", "magface__iresnet50", "magface__iresnet18"]
 
         self._all_allowed_model_name_list = self._adaface_model_name_list + self._sface_model_name_list + self._magface_model_name_list
 
@@ -38,8 +38,6 @@ class GeneratorManager:
         res = self._generator.generate(data)
 
         return res
-
-
 
 
 class DetectorManager:
